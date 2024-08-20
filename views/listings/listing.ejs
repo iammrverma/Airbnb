@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Listing</h3>
+    <ul>
+        <li><%=listing.title%></li>
+        <li><%=listing.country%></li>
+        <li><%=listing.location%></li>
+        <li> &#8377; <%= listing.price.toLocaleString("en-IN") %></li>
+        <li><%=listing.description%></li>
+    </ul>
+    
+    <a href="http://localhost:3000/listings/<%=listing._id%>/edit">edit</a>
+    <form method="post" action="/listings/<%=listing._id%>?_method=DELETE" >
+        <button>delete</button>
+    </form>
+</body>
+</html>

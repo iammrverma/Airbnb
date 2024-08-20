@@ -1,0 +1,25 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+#newListingForm{
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    margin-inline: auto;
+    border: 1px solid white;
+    gap: 1rem;
+}
+#newListingForm input,
+#newListingForm textarea,
+#newListingForm button {
+    padding: .5rem 1rem;
+    border: 2px solid red;
+}
+#newListingForm textarea{
+    resize: vertical;
+}
+
+body{
+    background-color: red;
+}
