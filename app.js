@@ -3,38 +3,46 @@ const mongoose = require("mongoose");
 const ejs = require("ejs");
 const methodOverride = require("method-override");
 const path = require("path");
-
+const helmet = require("helmet");
 const Listing = require("./models/listing");
-const { emit } = require("process");
+
 const app = express();
 
-const PORT = 3000;
-const DB_URL = "mongodb://127.0.0.1:27017/airbnb";
+const PORT = process.env.PORT || 3000;
+const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 
-const main = async (url) => await mongoose.connect(url);
-
+// Middleware
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "/views"));
+app.set("views", path.join(__dirname, "views"));
 
+// Routes
 app.get("/", (req, res) => res.send("Welcome!!!"));
 
+// Index route
 app.get("/listings", async (req, res) => {
-  let listings = await Listing.find({});
-  res.render("listings/listings", { listings });
+  try {
+    const listings = await Listing.find({});
+    res.render("listings/listings", { listings });
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    res.status(500).send("An error occurred while fetching listings.");
+  }
 });
 
+// Create route
 app.post("/listings", async (req, res) => {
   try {
-    const listingData = req.body.listing;
-    if (!listingData) {
-      return res.status(400).send("Invalid listing data.");
+    const { title, price } = req.body.listing;
+    if (!title || !price) {
+      return res.status(400).send("Title and price are required.");
     }
-    const listing = new Listing(listingData);
+
+    const listing = new Listing(req.body.listing);
     await listing.save();
     res.redirect("/listings");
   } catch (error) {
@@ -43,40 +51,52 @@ app.post("/listings", async (req, res) => {
   }
 });
 
-app.get("/listings/new", async (req, res) => {
+// Render create view
+app.get("/listings/new", (req, res) => {
   res.render("listings/new", { listing: null });
 });
 
+// View route
 app.get("/listings/:id", async (req, res) => {
-  const { id } = req.params;
-  const listing = await Listing.findById(id);
-  res.render("listings/listing", { listing });
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).render("404", { message: "Listing not found" });
+    }
+    res.render("listings/listing", { listing });
+  } catch (error) {
+    console.error("Error fetching listing:", error);
+    res.status(500).send("An error occurred while fetching the listing.");
+  }
 });
 
+// Edit route
 app.patch("/listings/:id", async (req, res) => {
   try {
-    const { id } = req.params;
     const updatedData = req.body.listing;
-    const listing = await Listing.findByIdAndUpdate(id, updatedData, {
-      new: true,
-      runValidators: true,
-    });
+    const listing = await Listing.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!listing) {
       return res.status(404).send("Listing not found");
     }
-
-    res.redirect(`/listings/${id}`);
+    res.redirect(`/listings/${req.params.id}`);
   } catch (error) {
     console.error("Error updating listing:", error);
     res.status(500).send("An error occurred while updating the listing");
   }
 });
 
+// Destroy route
 app.delete("/listings/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const listing = await Listing.findByIdAndDelete(id);
+    const listing = await Listing.findByIdAndDelete(req.params.id);
     if (!listing) {
       return res.status(404).send("Listing not found");
     }
@@ -89,13 +109,34 @@ app.delete("/listings/:id", async (req, res) => {
   }
 });
 
+// Render form to edit
 app.get("/listings/:id/edit", async (req, res) => {
-  const { id } = req.params;
-  const listing = await Listing.findById(id);
-  res.render("listings/new", { listing });
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).render("404", { message: "Listing not found" });
+    }
+    res.render("listings/new", { listing });
+  } catch (error) {
+    console.error("Error fetching listing for editing:", error);
+    res
+      .status(500)
+      .send("An error occurred while fetching the listing for editing.");
+  }
 });
 
-app.listen(PORT, () => console.log(`app.listneing at PORT ${PORT}`));
-main(DB_URL)
-  .then(() => console.log("connected to database"))
-  .catch((err) => console.log(err));
+// Connect to the database and start the server
+async function main(dbUrl) {
+  try {
+    await mongoose.connect(dbUrl); // No need for useNewUrlParser or useUnifiedTopology
+    console.log("Connected to database");
+    app.listen(PORT, () => {
+      console.log(`App listening at PORT ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Error connecting to database:", error);
+    process.exit(1); // Exit process with failure
+  }
+}
+
+main(DB_URL);
