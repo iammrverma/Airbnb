@@ -8,10 +8,10 @@ const listningSchema = new mongoose.Schema({
     url: {
       type: String,
       default:
-        "https://www.istockphoto.com/photo/the-blank-stare-of-a-childs-eye-who-is-standing-behind-what-appears-to-be-a-wooden-gm1181265061-331247858?utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fnot-found&utm_medium=affiliate&utm_source=unsplash&utm_term=not+found%3A%3A%3A",
+        "https://images.unsplash.com/photo-1470165301023-58dab8118cc9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGxvZGdlfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60",
       set: (v) =>
         v === ""
-          ? "https://www.istockphoto.com/photo/the-blank-stare-of-a-childs-eye-who-is-standing-behind-what-appears-to-be-a-wooden-gm1181265061-331247858?utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fnot-found&utm_medium=affiliate&utm_source=unsplash&utm_term=not+found%3A%3A%3A"
+          ? "https://images.unsplash.com/photo-1470165301023-58dab8118cc9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGxvZGdlfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60"
           : v,
     },
   },
