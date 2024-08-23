@@ -5,6 +5,7 @@ const methodOverride = require("method-override");
 const path = require("path");
 const helmet = require("helmet");
 const Listing = require("./models/listing");
+const ejsMate = require("ejs-mate");
 
 const app = express();
 
@@ -12,7 +13,9 @@ const PORT = process.env.PORT || 3000;
 const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 
 // Middleware
-app.use(express.static(path.join(__dirname, "public")));
+app.engine('ejs', ejsMate);
+
+app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(helmet());

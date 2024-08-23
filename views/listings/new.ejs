@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Airbnb</title>
-    <link rel="stylesheet" href="/new.css">
-  </head>
+<% layout("/layouts/boilerplate")%>
   <body>
     <form action="http://localhost:3000/listings<%= listing ? '/' + listing._id + '?_method=PATCH' : '' %>" method="post" id="newListingForm">
       <input type="text" name="listing[title]" placeholder="title" value="<%=listing?listing.title:""%>"/>
