@@ -19,6 +19,17 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "https://images.unsplash.com"],
+      // Add other directives as needed
+    },
+  })
+);
+
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
