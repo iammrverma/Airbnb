@@ -3,6 +3,17 @@
   margin: 0;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-height: 100vh;
+}
+
+.container {
+  flex: 1;
+}
+
 .navbar {
   background-color: white;
 
@@ -28,16 +39,25 @@
   & button {
     padding: 0.5rem 1rem;
   }
+  & .form-control:focus {
+    border-color: #fe424d !important;
+    box-shadow: 0px 0px 0.25rem 0.125rem #fe424dba !important;
+  }
 
   & textarea {
     resize: vertical;
+  }
+
+  & .btn {
+    background-color: #fe424d !important;
+    border: none !important;
   }
 }
 
 /* Footer */
 .f-info {
   display: flex;
-  height: 8rem;
+  /* height: 8rem; */
   background-color: #ebebeb;
   flex-wrap: wrap;
   justify-content: space-evenly;
