@@ -9,26 +9,26 @@
   <H3>Add Details of your place</H3>
     <div class="form-group">
       <label for="title" class="form-label">Title</label>
-      <input type="text" class="form-control" name="listing[title]"
+      <input required type="text" class="form-control" name="listing[title]"
       placeholder="title" value="<%=listing?listing.title:""%>" />
     </div>
 
     <div class="row">
       <div class="form-group col-md-4">
         <label for="country" class="form-label">Country</label>
-        <input type="text" class="form-control" name="listing[country]"
+        <input required type="text" class="form-control" name="listing[country]"
         placeholder="country" value="<%=listing?listing.country:""%>" />
       </div>
 
       <div class="form-group col-md-4">
         <label for="location" class="form-label">Location</label>
-        <input type="text" class="form-control" name="listing[location]"
+        <input required type="text" class="form-control" name="listing[location]"
         placeholder="location" value="<%=listing?listing.location:""%>" />
       </div>
 
       <div class="form-group col-md-4">
         <label for="price" class="form-label">Price</label>
-        <input type="number" class="form-control" name="listing[price]"
+        <input required type="number" class="form-control" name="listing[price]"
         placeholder="price" value="<%=listing?listing.price:""%>" />
       </div>
     </div>
@@ -45,7 +45,7 @@
       <textarea
         name="listing[description]"
         class="form-control"
-        placeholder="price"
+        placeholder="Describe your place in attractive way so that more and more people book"
         rows="5"
       >
         <%=listing?listing.description:""%>

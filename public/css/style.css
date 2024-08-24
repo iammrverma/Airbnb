@@ -39,11 +39,22 @@ body {
   & button {
     padding: 0.5rem 1rem;
   }
+  
   & .form-control:focus {
-    border-color: #fe424d !important;
-    box-shadow: 0px 0px 0.25rem 0.125rem #fe424dba !important;
+    border-color: transparent;
+    outline: none !important;
+    box-shadow: none !important; /*0px 0px 0.25rem 0.125rem #fe424dba !important;*/
   }
 
+  & .form-control:not(:placeholder-shown):valid {
+    outline: 2px solid green !important;
+  }
+  & .form-control:not(:placeholder-shown):invalid {
+    outline: 2px solid red !important;
+  }
+  & .form-control:focus:invalid {
+    outline: 2px solid yellow !important;
+  }
   & textarea {
     resize: vertical;
   }
@@ -116,7 +127,7 @@ body {
     object-fit: cover;
   }
 
-  & .options{
+  & .options {
     display: flex;
   }
   & .btn-dark {
