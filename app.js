@@ -9,6 +9,7 @@ const helmet = require("helmet");
 const Listing = require("./models/listing");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
+const {listingSchema} = require("./schema.js");
 
 const app = express();
 
@@ -54,18 +55,10 @@ app.post(
   "/listings",
   wrapAsync(async (req, res, next) => {
     const { listing } = req.body;
-
-    if (!listing) {
-      throw new ExpressError(400, "Data Not Found");
+    let validationResult = listingSchema.validate(req.body);
+    if (validationResult.error){
+      throw new ExpressError(400, "Data is missing or not sent in correct format. ");
     }
-
-    const { title, price, country, location, description } = listing;
-
-    // Validate all required fields
-    if (!title || !price || !country || !location || !description) {
-      throw new ExpressError(400, "Data not sent in correct format.");
-    }
-
     const newListing = new Listing(listing); 
     await newListing.save();
     res.redirect("/listings");
