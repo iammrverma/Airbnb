@@ -5,12 +5,16 @@
     action="http://localhost:3000/listings<%= listing ? '/' + listing._id + '?_method=PATCH' : '' %>"
     method="post"
     id="newListingForm"
+    class="needs-validation"
+    novalidate
   >
-  <H3>Add Details of your place</H3>
+    <H3>Add Details of your place</H3>
     <div class="form-group">
       <label for="title" class="form-label">Title</label>
       <input required type="text" class="form-control" name="listing[title]"
       placeholder="title" value="<%=listing?listing.title:""%>" />
+      <div class="valid-feedback">Looks Good !</div>
+      <div class="invalid-feedback">Title required!</div>
     </div>
 
     <div class="row">
@@ -18,25 +22,29 @@
         <label for="country" class="form-label">Country</label>
         <input required type="text" class="form-control" name="listing[country]"
         placeholder="country" value="<%=listing?listing.country:""%>" />
+        <div class="invalid-feedback">Valid Country required!</div>
       </div>
 
       <div class="form-group col-md-4">
         <label for="location" class="form-label">Location</label>
-        <input required type="text" class="form-control" name="listing[location]"
-        placeholder="location" value="<%=listing?listing.location:""%>" />
+        <input required type="text" class="form-control"
+        name="listing[location]" placeholder="location"
+        value="<%=listing?listing.location:""%>" />
+        <div class="invalid-feedback">Valid Location required!</div>
       </div>
 
       <div class="form-group col-md-4">
         <label for="price" class="form-label">Price</label>
         <input required type="number" class="form-control" name="listing[price]"
         placeholder="price" value="<%=listing?listing.price:""%>" />
+        <div class="invalid-feedback">Valid Price required!</div>
       </div>
     </div>
 
     <div class="form-group">
       <label for="image" class="form-label">Image</label>
       <input type="text" class="form-control" name="listing[image][url]"
-      placeholder="paste link of your location image"
+      placeholder="paste link of your location image" <%=listing?"required":""%>
       value="<%=listing?listing.image.url:""%>" />
     </div>
 
@@ -45,12 +53,14 @@
       <textarea
         name="listing[description]"
         class="form-control"
-        placeholder="Describe your place in attractive way so that more and more people book"
+        placeholder="Describe your place in an attractive way so that more and more people book"
         rows="5"
+        required
       >
-        <%=listing?listing.description:""%>
-      </textarea>
+<%= listing ? listing.description : '' %></textarea
+      >
     </div>
+
     <button class="btn btn-dark">Add Listing</button>
   </form>
 </body>

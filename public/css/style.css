@@ -39,11 +39,11 @@ body {
   & button {
     padding: 0.5rem 1rem;
   }
-  
+  /*
   & .form-control:focus {
     border-color: transparent;
     outline: none !important;
-    box-shadow: none !important; /*0px 0px 0.25rem 0.125rem #fe424dba !important;*/
+    box-shadow: none !important; 
   }
 
   & .form-control:not(:placeholder-shown):valid {
@@ -55,6 +55,7 @@ body {
   & .form-control:focus:invalid {
     outline: 2px solid yellow !important;
   }
+  */
   & textarea {
     resize: vertical;
   }
