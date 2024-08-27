@@ -1,20 +1,26 @@
 const express = require("express");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
 const mongoose = require("mongoose");
 const ejs = require("ejs");
-const methodOverride = require("method-override");
 const path = require("path");
 const helmet = require("helmet");
+
 const Listing = require("./models/listing");
-const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils/wrapAsync.js");
+const ExpressError = require("./utils/ExpressError.js");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 
-// Middleware
-app.engine('ejs', ejsMate);
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
+app.engine("ejs", ejsMate);
+
+// Middleware
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
@@ -30,64 +36,76 @@ app.use(
   })
 );
 
-
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
 // Routes
 app.get("/", (req, res) => res.send("Welcome!!!"));
 
 // Index route
-app.get("/listings", async (req, res) => {
-  try {
+app.get(
+  "/listings",
+  wrapAsync(async (req, res) => {
     const listings = await Listing.find({});
     res.render("listings/listings", { listings });
-  } catch (error) {
-    console.error("Error fetching listings:", error);
-    res.status(500).send("An error occurred while fetching listings.");
-  }
-});
+  })
+);
 
 // Create route
-app.post("/listings", async (req, res) => {
-  try {
-    const { title, price } = req.body.listing;
-    if (!title || !price) {
-      return res.status(400).send("Title and price are required.");
+app.post(
+  "/listings",
+  wrapAsync(async (req, res, next) => {
+    const { listing } = req.body;
+
+    if (!listing) {
+      throw new ExpressError(400, "Data Not Found");
     }
 
-    const listing = new Listing(req.body.listing);
-    await listing.save();
+    const { title, price, country, location, description } = listing;
+
+    // Validate all required fields
+    if (!title || !price || !country || !location || !description) {
+      throw new ExpressError(400, "Data not sent in correct format.");
+    }
+
+    const newListing = new Listing(listing); 
+    await newListing.save();
     res.redirect("/listings");
-  } catch (error) {
-    console.error("Error saving listing:", error);
-    res.status(500).send("An error occurred while saving the listing.");
-  }
-});
+  })
+);
 
 // Render create view
-app.get("/listings/new", (req, res) => {
-  res.render("listings/new", { listing: null });
-});
+app.get(
+  "/listings/new",
+  wrapAsync((req, res) => {
+    res.render("listings/new", { listing: null });
+  })
+);
 
 // View route
-app.get("/listings/:id", async (req, res) => {
-  try {
+app.get(
+  "/listings/:id",
+  wrapAsync(async (req, res, next) => {
     const listing = await Listing.findById(req.params.id);
     if (!listing) {
-      return res.status(404).render("404", { message: "Listing not found" });
+      throw new ExpressError(404, "Listing Not Found!");
     }
     res.render("listings/listing", { listing });
-  } catch (error) {
-    console.error("Error fetching listing:", error);
-    res.status(500).send("An error occurred while fetching the listing.");
-  }
-});
+  })
+);
 
 // Edit route
-app.patch("/listings/:id", async (req, res) => {
-  try {
-    const updatedData = req.body.listing;
+app.patch(
+  "/listings/:id",
+  wrapAsync(async (req, res, next) => {
+    const { updatedData } = req.body;
+
+    if (!updatedData) {
+      throw new ExpressError(400, "Data Not Found");
+    }
+
+    const { price, location, country, description, image, title } = updatedData;
+    if (!price || !location || !country || !description || !image || !title) {
+      throw new ExpressError(400, "Data not sent in the correct format.");
+    }
+
     const listing = await Listing.findByIdAndUpdate(
       req.params.id,
       updatedData,
@@ -98,45 +116,44 @@ app.patch("/listings/:id", async (req, res) => {
     );
 
     if (!listing) {
-      return res.status(404).send("Listing not found");
+      throw new ExpressError(404, "Listing Not Found");
     }
+
     res.redirect(`/listings/${req.params.id}`);
-  } catch (error) {
-    console.error("Error updating listing:", error);
-    res.status(500).send("An error occurred while updating the listing");
-  }
-});
+  })
+);
 
 // Destroy route
-app.delete("/listings/:id", async (req, res) => {
-  try {
+app.delete(
+  "/listings/:id",
+  wrapAsync(async (req, res) => {
     const listing = await Listing.findByIdAndDelete(req.params.id);
     if (!listing) {
-      return res.status(404).send("Listing not found");
+      throw new ExpressError(404, "Listing Not Found");
     }
     res.redirect("/listings");
-  } catch (error) {
-    console.error("Error deleting listing:", error);
-    res
-      .status(500)
-      .send("An error occurred while trying to delete the listing");
-  }
-});
+  })
+);
 
 // Render form to edit
-app.get("/listings/:id/edit", async (req, res) => {
-  try {
+app.get(
+  "/listings/:id/edit",
+  wrapAsync(async (req, res) => {
     const listing = await Listing.findById(req.params.id);
     if (!listing) {
-      return res.status(404).render("404", { message: "Listing not found" });
+      throw new ExpressError(404, "Listing Not Found");
     }
     res.render("listings/new", { listing });
-  } catch (error) {
-    console.error("Error fetching listing for editing:", error);
-    res
-      .status(500)
-      .send("An error occurred while fetching the listing for editing.");
-  }
+  })
+);
+
+app.all("*", (req, res, next) => {
+  next(new ExpressError(404, "Page Not Found!"));
+});
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message = "Internal Server Error" } = err;
+  res.status(statusCode).send(message);
 });
 
 // Connect to the database and start the server
