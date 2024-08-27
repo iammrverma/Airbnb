@@ -29,12 +29,13 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "https://images.unsplash.com"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // Allow scripts from self and cdn.jsdelivr.net
+      imgSrc: ["'self'", "https://images.unsplash.com", "data:"], // Allow images from self, Unsplash, and data URIs
       // Add other directives as needed
     },
   })
 );
+
 
 // Routes
 app.get("/", (req, res) => res.send("Welcome!!!"));
@@ -95,7 +96,7 @@ app.get(
 app.patch(
   "/listings/:id",
   wrapAsync(async (req, res, next) => {
-    const { updatedData } = req.body;
+    const { listing:updatedData } = req.body;
 
     if (!updatedData) {
       throw new ExpressError(400, "Data Not Found");
@@ -153,7 +154,7 @@ app.all("*", (req, res, next) => {
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = "Internal Server Error" } = err;
-  res.status(statusCode).send(message);
+  res.status(statusCode).render("error.ejs", {message});
 });
 
 // Connect to the database and start the server
