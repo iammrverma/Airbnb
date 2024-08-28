@@ -9,7 +9,7 @@ const helmet = require("helmet");
 const Listing = require("./models/listing");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema} = require("./schema.js");
+const { listingSchema } = require("./schema.js");
 
 const app = express();
 
@@ -22,21 +22,38 @@ app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
 
 // Middleware
-app.use(express.static(path.join(__dirname, "/public")));
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
-app.use(helmet());
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // Allow scripts from self and cdn.jsdelivr.net
-      imgSrc: ["'self'", "https://images.unsplash.com", "data:"], // Allow images from self, Unsplash, and data URIs
-      // Add other directives as needed
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // Allow scripts from self and cdn.jsdelivr.net
+        imgSrc: ["'self'", "https://images.unsplash.com", "data:"], // Allow images from self, Unsplash, and data URIs
+        // Add other directives as needed
+      },
     },
+    // Other helmet configurations can be added here
   })
 );
 
+app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+
+app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+
+// Custom Middlewares
+const validateListing = (req, res, next) => {
+  const { error } = listingSchema.validate(req.body);
+
+  if (error) {
+    let errMsg = error.details.map((e) => e.message).join(", ");
+    new ExpressError(400, errMsg);
+  }
+  return next();
+};
 
 // Routes
 app.get("/", (req, res) => res.send("Welcome!!!"));
@@ -53,25 +70,20 @@ app.get(
 // Create route
 app.post(
   "/listings",
+  validateListing,
   wrapAsync(async (req, res, next) => {
     const { listing } = req.body;
-    let validationResult = listingSchema.validate(req.body);
-    if (validationResult.error){
-      throw new ExpressError(400, "Data is missing or not sent in correct format. ");
-    }
-    const newListing = new Listing(listing); 
+
+    const newListing = new Listing(req.body.listing);
     await newListing.save();
-    res.redirect("/listings");
+    return res.redirect("/listings");
   })
 );
 
 // Render create view
-app.get(
-  "/listings/new",
-  wrapAsync((req, res) => {
-    res.render("listings/new", { listing: null });
-  })
-);
+app.get("/listings/new", (req, res) => {
+  res.render("listings/new", { listing: null });
+});
 
 // View route
 app.get(
@@ -85,20 +97,12 @@ app.get(
   })
 );
 
-// Edit route
+// Update route
 app.patch(
   "/listings/:id",
+  validateListing,
   wrapAsync(async (req, res, next) => {
-    const { listing:updatedData } = req.body;
-
-    if (!updatedData) {
-      throw new ExpressError(400, "Data Not Found");
-    }
-
-    const { price, location, country, description, image, title } = updatedData;
-    if (!price || !location || !country || !description || !image || !title) {
-      throw new ExpressError(400, "Data not sent in the correct format.");
-    }
+    const { listing: updatedData } = req.body;
 
     const listing = await Listing.findByIdAndUpdate(
       req.params.id,
@@ -147,7 +151,14 @@ app.all("*", (req, res, next) => {
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = "Internal Server Error" } = err;
-  res.status(statusCode).render("error.ejs", {message});
+  console.error(`Error occurred: ${message}, Status code: ${statusCode}`);
+
+  if (res.headersSent) {
+    // Check if headers have already been sent, if so, pass to next error handler
+    return next(err);
+  }
+
+  res.status(statusCode).render("error.ejs", { message });
 });
 
 // Connect to the database and start the server
