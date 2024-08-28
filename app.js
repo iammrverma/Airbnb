@@ -171,6 +171,17 @@ app.post(
   })
 );
 
+// Delete route
+app.delete(
+  "/listing/:id/review/:rId",
+  wrapAsync(async (req, res) => {
+    const { id, rId } = req.params;
+    await Listing.findByIdAndUpdate(id, { $pull: { reviews: rId } });
+    await Review.findByIdAndDelete(rId);
+    res.redirect(`/listings/${id}`);
+  })
+);
+
 app.all("*", (req, res, next) => {
   next(new ExpressError(404, "Page Not Found!"));
 });

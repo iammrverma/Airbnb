@@ -74,6 +74,12 @@
           <h5 class="card-title">Name</h5>
           <div class="card-text"><%=review.comment%></div>
           <div class="card-text"><%=review.rating%></div>
+          <form
+            action="/listing/<%=listing._id%>/review/<%=review._id%>?_method=delete"
+            method="post"
+          >
+            <button class="btn">Remove Review</button>
+          </form>
         </div>
       </div>
       <%}%>
