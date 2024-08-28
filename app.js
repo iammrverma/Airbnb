@@ -7,9 +7,10 @@ const path = require("path");
 const helmet = require("helmet");
 
 const Listing = require("./models/listing");
+const Review = require("./models/review");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const { listingSchema } = require("./schema.js");
+const { listingSchema, reviewSchema } = require("./schema.js"); // schemas of form validation
 
 const app = express();
 
@@ -54,6 +55,16 @@ const validateListing = (req, res, next) => {
   return next();
 };
 
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+
+  if (error) {
+    let errMsg = error.details.map((e) => e.message).join(", ");
+    new ExpressError(400, errMsg);
+  }
+  return next();
+};
+
 // Routes
 app.get("/", (req, res) => res.send("Welcome!!!"));
 
@@ -88,7 +99,7 @@ app.get("/listings/new", (req, res) => {
 app.get(
   "/listings/:id",
   wrapAsync(async (req, res, next) => {
-    const listing = await Listing.findById(req.params.id);
+    const listing = await Listing.findById(req.params.id).populate("reviews");
     if (!listing) {
       throw new ExpressError(404, "Listing Not Found!");
     }
@@ -141,6 +152,22 @@ app.get(
       throw new ExpressError(404, "Listing Not Found");
     }
     res.render("listings/new", { listing });
+  })
+);
+
+// FOR REVIEWS
+// Create route
+app.post(
+  "/listing/:id/review",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    const listing = await Listing.findById(req.params.id);
+    const review = new Review(req.body.review);
+    listing.reviews.push(review);
+    await review.save();
+    await listing.save();
+    console.log(`review ${review}`);
+    res.redirect(`/listings/${req.params.id}`);
   })
 );
 
