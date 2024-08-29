@@ -6,7 +6,10 @@ const path = require("path");
 const helmet = require("helmet");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
+const User = require("./models/user");
 const ExpressError = require("./utils/ExpressError.js"); //Custom error class
 const listingRoute = require("./routes/listingRoutes.js");
 const reviewRoute = require("./routes/reviewRoutes.js");
@@ -37,6 +40,21 @@ app.use((req, res, next) =>{
   res.locals.error = req.flash("error");
   next();
 });
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.get("/demouser", async (req, res) =>{
+  const fakeUser = new User({
+    email:"exammple.gamil.com",
+    username:"iammrverma",
+  });
+  const registeredUser = await User.register(fakeUser, "helloworld");
+  res.send(registeredUser);
+}); 
+
 app.use(
   helmet({
     contentSecurityPolicy: {
