@@ -13,6 +13,7 @@ const User = require("./models/user");
 const ExpressError = require("./utils/ExpressError.js"); //Custom error class
 const listingRoute = require("./routes/listingRoutes.js");
 const reviewRoute = require("./routes/reviewRoutes.js");
+const userRoute = require("./routes/userRoutes.js");
 
 const app = express();
 const sessionOptions = {
@@ -22,7 +23,7 @@ const sessionOptions = {
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly:true,
+    httpOnly: true,
   },
 };
 const PORT = process.env.PORT || 3000;
@@ -35,7 +36,7 @@ app.set("views", path.join(__dirname, "views"));
 // Middleware
 app.use(session(sessionOptions));
 app.use(flash());
-app.use((req, res, next) =>{
+app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -46,14 +47,14 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.get("/demouser", async (req, res) =>{
+app.get("/demouser", async (req, res) => {
   const fakeUser = new User({
-    email:"exammple.gamil.com",
-    username:"iammrverma",
+    email: "exammple.gamil.com",
+    username: "iammrverma",
   });
   const registeredUser = await User.register(fakeUser, "helloworld");
   res.send(registeredUser);
-}); 
+});
 
 app.use(
   helmet({
@@ -76,6 +77,8 @@ app.use(methodOverride("_method"));
 app.get("/", (req, res) => res.send("Welcome!!!"));
 app.use("/listings", listingRoute);
 app.use("/listing/:id/review", reviewRoute);
+app.use("/", userRoute);
+
 app.all("*", (req, res, next) => {
   next(new ExpressError(404, "Page Not Found!"));
 });
