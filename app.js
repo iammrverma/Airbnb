@@ -4,13 +4,24 @@ const ejsMate = require("ejs-mate");
 const mongoose = require("mongoose");
 const path = require("path");
 const helmet = require("helmet");
+const session = require("express-session");
+const flash = require("connect-flash");
 
 const ExpressError = require("./utils/ExpressError.js"); //Custom error class
 const listingRoute = require("./routes/listingRoutes.js");
 const reviewRoute = require("./routes/reviewRoutes.js");
 
 const app = express();
-
+const sessionOptions = {
+  secret: "sec",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly:true,
+  },
+};
 const PORT = process.env.PORT || 3000;
 const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 
@@ -19,6 +30,13 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Middleware
+app.use(session(sessionOptions));
+app.use(flash());
+app.use((req, res, next) =>{
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 app.use(
   helmet({
     contentSecurityPolicy: {
