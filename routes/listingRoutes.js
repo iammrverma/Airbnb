@@ -1,19 +1,10 @@
 const express = require("express");
 const Listing = require("../models/listing"); // Model
-const ExpressError = require("../utils/ExpressError"); //Custom error class
 const wrapAsync = require("../utils/wrapAsync.js");
-const { listingSchema } = require("../schema.js"); // Schema for form validation
-const { isLoggedIn } = require("../middleware.js");
+const { isLoggedIn, isOwner, validateListing } = require("../middleware.js");
 const router = express.Router();
 
-const validateListing = (req, res, next) => {
-  const { error } = listingSchema.validate(req.body);
-  if (error) {
-    let errMsg = error.details.map((e) => e.message).join(", ");
-    new ExpressError(400, errMsg);
-  }
-  return next();
-};
+
 
 // Index route
 router.get(
@@ -64,24 +55,26 @@ router.get(
 router.patch(
   "/:id",
   isLoggedIn,
+  isOwner,
   validateListing,
   wrapAsync(async (req, res, next) => {
     const { listing: updatedData } = req.body;
+    const { id } = req.params;
 
-    const listing = await Listing.findByIdAndUpdate(
-      req.params.id,
-      updatedData,
-      {
-        new: true,
+    try {
+      await Listing.findByIdAndUpdate(id, updatedData, {
         runValidators: true,
-      }
-    );
-
-    if (!listing) {
-      throw new ExpressError(404, "Listing Not Found");
+      });
+    } catch (e) {
+      req.flash(
+        "error",
+        "Some Error in updating the Lisiting please try later"
+      );
+      return res.redirect("/listings");
     }
+
     req.flash("success", "Changes Made Successfully !");
-    res.redirect(`/listings/${req.params.id}`);
+    res.redirect(`/listings/${id}`);
   })
 );
 
@@ -89,6 +82,7 @@ router.patch(
 router.delete(
   "/:id",
   isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     const listing = await Listing.findByIdAndDelete(req.params.id);
     if (!listing) {
@@ -105,12 +99,15 @@ router.delete(
 router.get(
   "/:id/edit",
   isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     const listing = await Listing.findById(req.params.id);
+
     if (!listing) {
       req.flash("error", "Listing Not Found!");
-      res.redirect("/listings");
+      return res.redirect("/listings");
     }
+
     res.render("listings/new", { listing });
   })
 );

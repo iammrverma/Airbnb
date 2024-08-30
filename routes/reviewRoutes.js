@@ -4,6 +4,7 @@ const Listing = require("../models/listing"); //Model
 const ExpressError = require("../utils/ExpressError"); //Custom error class
 const wrapAsync = require("../utils/wrapAsync.js");
 const { reviewSchema } = require("../schema.js"); // Schema for form validation
+const { isLoggedIn } = require("../middleware.js");
 
 const router = express.Router({ mergeParams: true });
 
@@ -20,10 +21,12 @@ const validateReview = (req, res, next) => {
 // Create route
 router.post(
   "/",
+  isLoggedIn,
   validateReview,
   wrapAsync(async (req, res) => {
     const listing = await Listing.findById(req.params.id);
     const review = new Review(req.body.review);
+    review.owner = req.user._id
     listing.reviews.push(review);
     await review.save();
     await listing.save();
@@ -35,7 +38,7 @@ router.post(
 
 // Delete route
 router.delete(
-  "/:rId",
+  isLoggedIn,
   wrapAsync(async (req, res) => {
     const { id, rId } = req.params;
     await Listing.findByIdAndUpdate(id, { $pull: { reviews: rId } });
