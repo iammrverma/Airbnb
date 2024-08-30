@@ -11,6 +11,10 @@ main(DB_URL)
 
 const initDatabase = async () => {
   await Listning.deleteMany({});
+  data.data = data.data.map((obj) => ({
+    ...obj,
+    owner: "66d04585919b322d11c28ad9",
+  }));
   await Listning.insertMany(data.data);
   console.log("database initialised");
 };

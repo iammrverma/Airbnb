@@ -3,7 +3,7 @@ const Listing = require("../models/listing"); // Model
 const ExpressError = require("../utils/ExpressError"); //Custom error class
 const wrapAsync = require("../utils/wrapAsync.js");
 const { listingSchema } = require("../schema.js"); // Schema for form validation
-const {isLoggedIn} = require("../middleware.js");
+const { isLoggedIn } = require("../middleware.js");
 const router = express.Router();
 
 const validateListing = (req, res, next) => {
@@ -33,6 +33,7 @@ router.post(
     const { listing } = req.body;
 
     const newListing = new Listing(req.body.listing);
+    newListing.owner = req.user._id;
     await newListing.save();
     req.flash("success", "New Listing Created !");
     return res.redirect("/listings");
@@ -48,7 +49,9 @@ router.get("/new", isLoggedIn, (req, res) => {
 router.get(
   "/:id",
   wrapAsync(async (req, res, next) => {
-    const listing = await Listing.findById(req.params.id).populate("reviews");
+    const listing = await Listing.findById(req.params.id)
+      .populate("reviews")
+      .populate("owner");
     if (!listing) {
       req.flash("error", "Listing Not Found!");
       return res.redirect("/listings");
