@@ -3,7 +3,7 @@ const Listing = require("../models/listing"); // Model
 const ExpressError = require("../utils/ExpressError"); //Custom error class
 const wrapAsync = require("../utils/wrapAsync.js");
 const { listingSchema } = require("../schema.js"); // Schema for form validation
-
+const {isLoggedIn} = require("../middleware.js");
 const router = express.Router();
 
 const validateListing = (req, res, next) => {
@@ -27,6 +27,7 @@ router.get(
 // Create route
 router.post(
   "/",
+  isLoggedIn,
   validateListing,
   wrapAsync(async (req, res, next) => {
     const { listing } = req.body;
@@ -39,7 +40,7 @@ router.post(
 );
 
 // Render create view
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
   res.render("listings/new", { listing: null });
 });
 
@@ -50,7 +51,7 @@ router.get(
     const listing = await Listing.findById(req.params.id).populate("reviews");
     if (!listing) {
       req.flash("error", "Listing Not Found!");
-      res.redirect("/listings");
+      return res.redirect("/listings");
     }
     res.render("listings/listing", { listing });
   })
@@ -59,6 +60,7 @@ router.get(
 // Update route
 router.patch(
   "/:id",
+  isLoggedIn,
   validateListing,
   wrapAsync(async (req, res, next) => {
     const { listing: updatedData } = req.body;
@@ -83,6 +85,7 @@ router.patch(
 // Destroy route
 router.delete(
   "/:id",
+  isLoggedIn,
   wrapAsync(async (req, res) => {
     const listing = await Listing.findByIdAndDelete(req.params.id);
     if (!listing) {
@@ -98,6 +101,7 @@ router.delete(
 // Render form to edit
 router.get(
   "/:id/edit",
+  isLoggedIn,
   wrapAsync(async (req, res) => {
     const listing = await Listing.findById(req.params.id);
     if (!listing) {

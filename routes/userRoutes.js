@@ -49,7 +49,8 @@ router.post(
   }),
   wrapAsync(async (req, res) => {
     const { username, password } = req.body;
-    res.send("loged in");
+    req.flash("success", "Welcome Back ");
+    res.redirect("/listings");
   })
 );
 
