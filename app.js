@@ -36,11 +36,6 @@ app.set("views", path.join(__dirname, "views"));
 // Middleware
 app.use(session(sessionOptions));
 app.use(flash());
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  next();
-});
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
@@ -68,6 +63,13 @@ app.use(
     },
   })
 );
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser =req.user;
+  next();
+});
 
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
