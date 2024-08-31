@@ -1,6 +1,6 @@
 const Listing = require("./models/listing");
 const Review = require("./models/review.js");
-const { listingSchema } = require("./schema.js"); // Schema for form validation
+const { listingSchema, reviewSchema } = require("./schema.js"); // Schema for form validation
 const ExpressError = require("./utils/ExpressError"); //Custom error class
 
 const wrapAsync = require("./utils/wrapAsync");
@@ -51,6 +51,16 @@ module.exports.listingExists = wrapAsync(async (req, res, next) => {
 
 module.exports.validateListing = (req, res, next) => {
   const { error } = listingSchema.validate(req.body);
+  if (error) {
+    let errMsg = error.details.map((e) => e.message).join(", ");
+    new ExpressError(400, errMsg);
+  }
+  return next();
+};
+
+module.exports.validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+
   if (error) {
     let errMsg = error.details.map((e) => e.message).join(", ");
     new ExpressError(400, errMsg);
