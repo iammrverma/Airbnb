@@ -1,4 +1,5 @@
 const Listing = require("./models/listing");
+const Review = require("./models/review.js");
 const { listingSchema } = require("./schema.js"); // Schema for form validation
 const ExpressError = require("./utils/ExpressError"); //Custom error class
 
@@ -20,11 +21,21 @@ module.exports.saveRedirectUrl = (req, res, next) => {
 module.exports.isOwner = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
   if (!listing.owner.equals(res.locals.currUser._id)) {
-    req.flash("error", "Bad Request! Unauthorisedf user");
+    req.flash("error", "Bad Request! Unauthorised user");
     return res.redirect(`/listings/${req.params.id}`);
   }
   next();
 };
+
+module.exports.isAuthor = async (req, res, next) => {
+  const review = await Review.findById(req.params.rId);
+  if (!review.author.equals(res.locals.currUser._id)) {
+    req.flash("error", "Bad Request! Unauthorised user");
+    return res.redirect(`/listings/${req.params.id}`);
+  }
+  next();
+};
+
 
 module.exports.listingExists = wrapAsync(async (req, res, next) => {
   const listing = await Listing.findById(req.params.id)
