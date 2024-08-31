@@ -36,14 +36,12 @@ module.exports.isAuthor = async (req, res, next) => {
   next();
 };
 
-
 module.exports.listingExists = wrapAsync(async (req, res, next) => {
   const listing = await Listing.findById(req.params.id)
-    .populate("reviews")
+    .populate({ path: "reviews", populate: { path: "author" } })
     .populate("owner");
-
   if (!listing) {
-    req.flash("error", "Listing not found");
+    req.flash("error", "Listing Not Found!");
     return res.redirect("/listings");
   }
 
