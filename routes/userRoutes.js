@@ -12,21 +12,19 @@ const {
 
 const router = express.Router();
 
-router.get("/signup", renderSignupForm);
+router.route("/signup").get(renderSignupForm).post(wrapAsync(signup));
 
-router.post("/signup", wrapAsync(signup));
-
-router.get("/login", renderLoginForm);
-
-router.post(
-  "/login",
-  saveRedirectUrl,
-  passport.authenticate("local", {
-    failureRedirect: "/login",
-    failureFlash: true,
-  }),
-  wrapAsync(login)
-);
+router
+  .route("/login")
+  .get(renderLoginForm)
+  .post(
+    saveRedirectUrl,
+    passport.authenticate("local", {
+      failureRedirect: "/login",
+      failureFlash: true,
+    }),
+    wrapAsync(login)
+  );
 
 router.get("/logout", logout);
 

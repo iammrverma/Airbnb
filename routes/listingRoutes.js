@@ -18,29 +18,19 @@ const {
 const router = express.Router();
 
 // Index route
-router.get("/", wrapAsync(index));
+router
+  .route("/")
+  .get(wrapAsync(index))
+  .post(isLoggedIn, validateListing, wrapAsync(create));
 
-// Create route
-router.post("/", isLoggedIn, validateListing, wrapAsync(create));
-
-// Render create view
+  // Render create view
 router.get("/new", isLoggedIn, newListingForm);
 
-// View route
-router.get("/:id", listingExists, wrapAsync(show));
-
-// Update route
-router.patch(
-  "/:id",
-  isLoggedIn,
-  isOwner,
-  listingExists,
-  validateListing,
-  wrapAsync(update)
-);
-
-// Destroy route
-router.delete("/:id", isLoggedIn, isOwner, listingExists, wrapAsync(destroy));
+router
+  .route("/:id")
+  .get(listingExists, wrapAsync(show))
+  .patch(isLoggedIn, isOwner, listingExists, validateListing, wrapAsync(update))
+  .delete(isLoggedIn, isOwner, listingExists, wrapAsync(destroy));
 
 // Render form to edit
 router.get(
