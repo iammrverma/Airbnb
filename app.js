@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -5,6 +6,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const helmet = require("helmet");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -16,7 +18,22 @@ const reviewRoute = require("./routes/reviewRoutes.js");
 const userRoute = require("./routes/userRoutes.js");
 
 const app = express();
+const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
+const store = MongoStore.create({
+  mongoUrl: DB_URL,
+  crypto: {
+    secret: "sec",
+  },
+  touchAfter: 60 * 60 * 24,
+  ttl: 2 * 24 * 60 * 60,
+});
+
+store.on("error", () => {
+  console.log(`error in mongo Session store ${err}`);
+});
+
 const sessionOptions = {
+  store,
   secret: "sec",
   resave: false,
   saveUninitialized: true,
@@ -26,8 +43,8 @@ const sessionOptions = {
     httpOnly: true,
   },
 };
+
 const PORT = process.env.PORT || 3000;
-const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -67,7 +84,7 @@ app.use(
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currUser =req.user;
+  res.locals.currUser = req.user;
   next();
 });
 
