@@ -76,7 +76,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 // Routes
-app.get("/", (req, res) => res.send("Welcome!!!"));
 app.use("/listings", listingRoute);
 app.use("/listing/:id/review", reviewRoute);
 app.use("/", userRoute);

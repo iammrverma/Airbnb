@@ -1,11 +1,88 @@
 <% layout("/layouts/boilerplate")%>
+<style>
+  #filters {
+    display: flex;
+    gap: 1.5rem;
+    max-width: 100%;
+    overflow-x: auto;
+
+    flex-wrap: nowrap;
+
+    & .filter {
+      text-align: center;
+      opacity: 0.7;
+      & div {
+        font-size: 1.5em;
+      }
+      & p {
+        font-size: 0.8rem;
+      }
+      &:hover {
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+  }
+</style>
 <body>
+  <div id="filters">
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p class="">Trending</p>
+    </div>
+
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p class="">Trending</p>
+    </div>
+
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div class=""><i class="fa-solid fa-fire-flame-curved"></i></div>
+      <p>Trending</p>
+    </div>
+  </div>
   <div class="listings-grid">
     <%for (listing of listings){%>
     <a href="/listings/<%=listing._id%>">
       <div class="card">
-        <div class="image"><img src="<%=listing.image.url%>" class="card-img-top" alt="..." /></div>
-        
+        <div class="image">
+          <img src="<%=listing.image.url%>" class="card-img-top" alt="..." />
+        </div>
+
         <div class="card-body">
           <h6><%=listing.title%></h6>
           <p class="card-text">
