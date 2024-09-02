@@ -22,7 +22,7 @@ const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 const store = MongoStore.create({
   mongoUrl: DB_URL,
   crypto: {
-    secret: "sec",
+    secret: process.env.SECRET,
   },
   touchAfter: 60 * 60 * 24,
   ttl: 2 * 24 * 60 * 60,
@@ -34,7 +34,7 @@ store.on("error", () => {
 
 const sessionOptions = {
   store,
-  secret: "sec",
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
