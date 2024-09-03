@@ -1,7 +1,6 @@
 <% layout("/layouts/boilerplate")%><%=success%>
 <div class="row">
-  <div class="col-6 offset-3">
-    <h1>signup</h1>
+  <div class="col-10 offset-1">
     <form
       action="/signup"
       method="post"
@@ -9,6 +8,8 @@
       id="signupForm"
       novalidate
     >
+    <h1>Signup</h1>
+
       <div class="form-group">
         <lable for="username" class="form-lable">Username</lable>
         <input
