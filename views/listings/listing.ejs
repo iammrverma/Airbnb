@@ -21,7 +21,7 @@
   <% if (currUser && currUser._id.equals(listing.owner._id)){%>
   <div class="options">
     <a
-      href="http://localhost:3000/listings/<%=listing._id%>/edit"
+      href="<%=BASE_URL%>/listings/<%=listing._id%>/edit"
       class="btn btn-dark col-2 offset-3"
       >Edit</a
     >

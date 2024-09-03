@@ -2,7 +2,7 @@
 
 <body>
   <form
-    action="http://localhost:3000/listings<%= listing ? '/' + listing._id + '?_method=PATCH' : '' %>"
+    action="<%=BASE_URL%>/listings<%= listing ? '/' + listing._id + '?_method=PATCH' : '' %>"
     method="post"
     id="newListingForm"
     class="needs-validation"

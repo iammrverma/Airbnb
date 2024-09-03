@@ -18,7 +18,7 @@ const reviewRoute = require("./routes/reviewRoutes.js");
 const userRoute = require("./routes/userRoutes.js");
 
 const app = express();
-const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
+const DB_URL = "mongodb://127.0.0.1:27017/airbnb";
 const store = MongoStore.create({
   mongoUrl: DB_URL,
   crypto: {

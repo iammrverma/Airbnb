@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 module.exports.index = async (req, res) => {
   const listings = await Listing.find({});
@@ -14,15 +15,15 @@ module.exports.create = async (req, res, next) => {
 };
 
 module.exports.newListingForm = (req, res) => {
-  res.render("listings/new", { listing: null });
+  res.render("listings/new", { listing: null, BASE_URL });
 };
 
 module.exports.editListingForm = async (req, res) => {
-  res.render("listings/new", { listing: res.locals.listing });
+  res.render("listings/new", { listing: res.locals.listing, BASE_URL });
 };
 
 module.exports.show = async (req, res, next) => {
-  res.render("listings/listing", { listing: res.locals.listing });
+  res.render("listings/listing", { listing: res.locals.listing, BASE_URL });
 };
 
 module.exports.update = async (req, res, next) => {
