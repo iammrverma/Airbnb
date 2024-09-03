@@ -12,13 +12,13 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 
 const User = require("./models/user");
-const ExpressError = require("./utils/ExpressError.js"); //Custom error class
+const ExpressError = require("./utils/ExpressError.js"); 
 const listingRoute = require("./routes/listingRoutes.js");
 const reviewRoute = require("./routes/reviewRoutes.js");
 const userRoute = require("./routes/userRoutes.js");
 
 const app = express();
-const DB_URL = "mongodb://127.0.0.1:27017/airbnb";
+const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/airbnb";
 const store = MongoStore.create({
   mongoUrl: DB_URL,
   crypto: {
